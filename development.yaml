@@ -1,0 +1,15 @@
+- name: Installations for developers
+  hosts: ubuntu
+  vars_files:
+    - vars/passwds.yaml
+  vars:
+    department: development
+    docker_users:
+      - root
+      - ubuntu
+      - docker_son
+
+
+  roles:
+    - common
+    - dev

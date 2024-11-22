@@ -1,0 +1,25 @@
+---
+# handlers file for mariadb-conf
+- name: restart apache
+  become: true
+  service:
+    name: apache2
+    state: restarted
+
+- name: start mariadb
+  become: true
+  service:
+    name: mariadb
+    state: started
+
+- name: start httpd
+  become: true
+  service:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: restart_mariadb
+  service: 
+    name: mariadb
+    state: restarted

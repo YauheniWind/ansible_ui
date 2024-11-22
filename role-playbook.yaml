@@ -1,0 +1,8 @@
+- name: Create servers name
+  hosts: ubuntu
+  vars_files:
+    - passwds.yaml
+
+
+  roles:
+    - testing

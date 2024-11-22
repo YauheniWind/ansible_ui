@@ -1,0 +1,10 @@
+- name: Installation for administartors
+  hosts: ubuntu
+  vars_files:
+    - vars/passwds.yaml
+  vars:
+    department: administrative
+
+  roles:
+    - common
+    - office

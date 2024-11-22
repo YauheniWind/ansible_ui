@@ -1,0 +1,95 @@
+---
+# tasks file for common
+
+- name: Installing packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - htop
+      - vim
+      - kazam
+      - filezilla
+      - bluefish
+  tags:
+    - packages
+
+- name: Installing PHP packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - ca-certificates
+      - apt-transport-https
+      - software-properties-common
+  tags:
+    - packages
+- name: Add PHP repo
+  become: true
+  ansible.builtin.apt_repository:
+    repo: 'ppa:ondrej/php'
+  tags:
+    - packages
+
+- name: Install PHP
+  become: true
+  ansible.builtin.apt:
+    name: php8.4
+    update_cache: yes
+  tags:
+    - packages
+      
+- name: Check PHP version
+  shell: php --version
+  register: php_version
+  tags:
+    - packages
+
+- name: Display PHP version
+  debug: 
+    msg: "PHP version is {{ php_version.stdout }}"
+  tags:
+    - packages
+
+- name: Create Pictures dir
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/Pictures"
+    state: directory
+    mode: '0755'
+
+- name: Download background
+  ansible.builtin.get_url:
+        url: "{{ bg_url }}"
+        dest: "{{ ansible_user_dir }}/Pictures/{{ department }}.jpg"
+  tags:
+    - background
+
+- name: CPU information
+  ansible.builtin.copy:
+    dest: /home/ubuntu/test.txt
+    content: |
+      CPU of machine {{ ansible_hostname }}:{{ ansible_processor_cores }}
+  tags:
+      - cpu
+        
+- name: Create CPU file from Template
+  ansible.builtin.template:
+    src: cpu.j2
+    dest: /tmp/cpu.txt
+  tags:
+      - cpu_template
+
+
+- name: Create hostname.j2
+  ansible.builtin.template:
+    src: template.j2
+    dest: /tmp/hostname.txt
+  tags:
+    - template
+
+- name: Create servers
+  ansible.builtin.template:
+    src: server.j2
+    dest: "/tmp/{{ item.name }}.txt"
+  loop: "{{ servers }}"
+  tags:
+    - servers
+

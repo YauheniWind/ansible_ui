@@ -1,0 +1,18 @@
+- name: Create servers name
+  hosts: ubuntu
+  become: yes
+  
+  vars:
+    servers: ["galaxy", "vulcan", "ameros"]
+      # - name: galaxy
+      # - name: vulcan
+      # - name: ameros
+
+  tasks:
+    - name: Generate servers
+      ansible.builtin.template:
+        src: server.j2
+        dest: "/tmp/{{ item }}.txt"
+      loop: "{{ servers }}"
+      tags:
+        - servers

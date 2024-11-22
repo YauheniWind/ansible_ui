@@ -1,0 +1,91 @@
+---
+# Main tasks file for lamp
+
+- name: "Include tasks for {{ ansible_os_family }}_family.yml"
+  include_tasks:
+        file: "{{ ansible_os_family }}_family.yml"
+  when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+
+
+- name: Check PHP version
+  shell: php --version
+  register: php_version
+  tags:
+    - packages
+
+- name: Display PHP version
+  debug: 
+    msg: "PHP version is {{ php_version.stdout }}"
+  tags:
+    - packages
+
+- name: remove "{{ remove_file }}" file
+  become: true
+  file:
+    path: "/var/www/html/{{ remove_file }}"
+    state: absent
+
+- name: copy new "{{ index_file }}" file
+  become: true
+  copy:
+    src: "{{ index_file }}"
+    dest: "/var/www/html/{{ index_file }}"
+
+
+# - name: Installing PHP packages
+#   become: true
+#   ansible.builtin.package:
+#     name:
+#       - ca-certificates
+#       - apt-transport-https
+#       - software-properties-common
+#   tags:
+#     - packages
+
+# - name: Add PHP repo
+#   become: true
+#   ansible.builtin.apt_repository:
+#     repo: 'ppa:ondrej/php'
+#   tags:
+#     - packages
+
+# - name: Install LAMP packages
+#   become: true
+#   ansible.builtin.apt:
+#     name: 
+#       - php8.4
+#       - apache2
+#       - php8.4-mysql
+#       - mariadb-server
+#       - mariadb-client
+#     update_cache: yes
+#   notify: 
+#     - start apache
+#     - start mariadb
+#   tags:
+#     - packages
+
+
+# - name: Check PHP version
+#   shell: php --version
+#   register: php_version
+#   tags:
+#     - packages
+
+# - name: Display PHP version
+#   debug: 
+#     msg: "PHP version is {{ php_version.stdout }}"
+#   tags:
+#     - packages
+
+# - name: remove "{{ remove_file }}" file
+#   become: true
+#   file:
+#     path: "/var/www/html/{{ remove_file }}"
+#     state: absent
+
+# - name: copy new "{{ index_file }}" file
+#   become: true
+#   copy:
+#     src: "{{ index_file }}"
+#     dest: "/var/www/html/{{ index_file }}"

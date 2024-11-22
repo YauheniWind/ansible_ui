@@ -1,0 +1,12 @@
+ubuntu 
+debian
+rhel
+
+
+[webservers]
+debian
+ubuntu
+
+
+[dbservers]
+rhel

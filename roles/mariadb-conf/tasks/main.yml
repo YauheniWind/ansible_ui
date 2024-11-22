@@ -1,0 +1,96 @@
+---
+# tasks file for mariadb-conf
+
+- name: Include WP tasks
+  include_tasks:
+        file: wp_deploy.yml
+
+- name: Install PHP MY ADMIN packages
+  become: true
+  ansible.builtin.apt:
+    name: 
+      - php8.4-mbstring
+      - phpmyadmin
+    update_cache: yes
+    state: present
+  tags:
+    - packages
+  
+- name: Ensure phpMyAdmin is included in apache2.conf
+  become: true
+  lineinfile:
+    path: /etc/apache2/apache2.conf
+    line: 'Include /etc/phpmyadmin/apache.conf'
+    state: present
+  notify: 
+    - restart apache
+
+- name: install pip3
+  become: true
+  apt: 
+    name: python3-pip 
+    state: present
+    update_cache: true
+
+- name: Make sure pymysql is present
+  become: true
+  pip:
+    name: pymysql
+    state: present
+
+- name: Grant root privileges on all databases
+  become: true
+  community.mysql.mysql_user:
+    name: root
+    host: localhost
+    login_user: root
+    login_password: test
+    password: test
+    priv: "*.*:ALL,GRANT"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+
+- name: Create MySQL database
+  become: true
+  community.mysql.mysql_db:
+    name: LAMP_DB
+    state: present
+    login_user: root
+    login_password: test  
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Update MySQL root authentication to use native password
+  become: true
+  community.mysql.mysql_user:
+    name: root
+    host: 127.0.0.1
+    password: test
+    login_user: root
+    login_password: test
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+
+
+- name: Connect to MySQL
+  community.mysql.mysql_db:
+    name: LAMP_DB
+    login_user: root
+    login_password: test  
+    login_unix_socket: /var/run/mysqld/mysqld.sock 
+    state: present
+
+- name: Remove all anonymous user accounts
+  mysql_user:
+    login_user: root
+    login_password: test 
+    name: ''
+    host_all: true
+    state: absent
+
+
+- name: Delete Test DB
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: test 
+    name: 'TEST_DB_2'
+    state: absent

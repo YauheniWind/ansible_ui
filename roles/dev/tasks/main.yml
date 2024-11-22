@@ -1,0 +1,72 @@
+---
+# tasks file for dev
+- name: Install packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - ca-certificates
+      - curl
+      - git
+    update_cache: true
+
+- name: Create a directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download docker
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring: /etc/apt/keyrings/docker.asc
+  #register: result
+  #failed_when: result.status != 200 and result.status != 304
+  
+- name: Changing perm
+  become: true
+  file:  
+    dest: /etc/apt/keyrings/docker.asc
+    mode: a+r
+
+#- name: Add repo to Apt source
+#  become: true
+#  shell: "echo deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \ $(. /etc/os-release && echo $VERSION_CODENAME) stable | \ tee /etc/apt/sources.list.d/docker.list > /dev/null"
+
+- name: Get OS path
+  command: dpkg --print-architecture
+  register: arch_out
+
+- name: Add repo with apt
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ arch_out.stdout }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \ {{ ansible_distribution_release }} stable"
+    filename: docker
+    state: present
+
+- name: Install docker packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io 
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+    update_cache: true
+  notify: start docker service
+
+- name: Ensure group "docker" exist
+  become: true
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Add the users to docker group
+  become: true
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  loop: "{{ docker_users }}"

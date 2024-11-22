@@ -1,0 +1,93 @@
+- name: Installing packages
+  hosts: ubuntu
+  become: yes
+  vars_files:
+    - vars/passwds.yaml
+  
+  vars:
+    servers:
+      - name: galaxy
+      - name: vulcan
+      - name: ameros
+    bg_pictures: https://cdn.wallpapersafari.com/55/73/ghY4rc.jpg
+  tasks:
+    - name: Installing packages
+      ansible.builtin.package:
+        name:
+        - htop
+        - vim
+        - kazam
+        - filezilla
+        - bluefish
+      tags:
+        - packages
+    - name: Installing PHP packages
+      ansible.builtin.package:
+        name:
+          - ca-certificates
+          - apt-transport-https
+          - software-properties-common
+      tags:
+        - packages
+    - name: Add PHP repo
+      ansible.builtin.apt_repository:
+        repo: 'ppa:ondrej/php'
+      tags:
+        - packages
+    - name: Install PHP
+      ansible.builtin.apt:
+        name: php8.4
+        update_cache: yes
+      tags:
+        - packages
+      
+    - name: Check PHP version
+      shell: php --version
+      register: php_version
+      tags:
+        - packages
+
+    - name: Display PHP version
+      debug: 
+        msg: "PHP version is {{ php_version.stdout }}"
+      tags:
+        - packages
+
+    - name: Download file
+      ansible.builtin.get_url:
+        url: "{{ bg_pictures }}"
+        dest: "{{ ansible_user_dir }}/"
+      tags:
+        - background
+
+    - name: CPU information
+      ansible.builtin.copy:
+        dest: /home/ubuntu/test.txt
+        content: |
+          CPU of machine {{ ansible_hostname }}:{{ ansible_processor_cores }}
+      tags:
+        - cpu
+
+    - name: Create hostname.j2
+      ansible.builtin.template:
+        src: cpu.j2
+        dest: /tmp/cpu.txt
+      tags:
+        - cpu_template
+
+
+    - name: Create hostname.j2
+      ansible.builtin.template:
+        src: template.j2
+        dest: /tmp/hostname.txt
+      tags:
+        - template
+
+    - name: Create hostname.j2
+      ansible.builtin.template:
+        src: server.j2
+        dest: "/tmp/{{ item.name }}.txt"
+      loop: "{{ servers }}"
+      tags:
+        - servers
+

@@ -1,0 +1,20 @@
+---
+# Ubuntu tasks file for lamp
+
+- name: Installing PHP packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - ca-certificates
+      - apt-transport-https
+      - software-properties-common
+  tags:
+    - packages
+
+- name: Add PHP repo
+  become: true
+  ansible.builtin.apt_repository:
+    repo: 'ppa:ondrej/php'
+  tags:
+    - packages
+

@@ -1,0 +1,13 @@
+- name: LAMP
+  hosts: 
+    - ubuntu
+    #- debian
+    #- rhel
+  vars_files:
+    - vars/passwds.yaml
+    - vars/passwds_debian.yaml
+
+
+  roles:
+    #- lamp
+    - mariadb-conf

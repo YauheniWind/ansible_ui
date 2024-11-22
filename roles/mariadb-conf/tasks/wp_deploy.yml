@@ -1,0 +1,34 @@
+
+
+# - name: Download via GET_URL
+#   become: true
+#   get_url:
+#     url: https://wordpress.org/latest.zip
+#     dest: "/var/www/html/"
+
+- name: Install unzip
+  become: true
+  apt: 
+    name: unzip
+    state: present
+
+- name: Download WP
+  become: true
+  unarchive:
+    src: "/var/www/html/wordpress-6.7.1.zip"
+    dest: "/var/www/html/"
+    remote_src: yes
+
+- name: Move all from wordpress dir to html
+  become: true
+  shell: mv /var/www/html/wordpress/* /var/www/html/
+
+- name: Set up wp-config
+  become: true
+  template:
+    src: "wp-config.php.j2"
+    dest: "/var/www/html/wp-config.php"
+  notify: 
+    - restart apache
+
+  

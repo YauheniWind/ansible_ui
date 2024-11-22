@@ -1,0 +1,11 @@
+- name: Create servers name
+  hosts: ubuntu
+  become: no
+  vars_files:
+    - vars/passwds.yaml 
+
+  tasks:
+    - name: Hello
+      shell: "sudo echo 'Hello'"
+  
+  

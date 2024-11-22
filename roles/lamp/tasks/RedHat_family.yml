@@ -1,0 +1,20 @@
+
+- name: Include Ubuntu tasks
+  include_tasks:
+        file: redhat.yml
+  when: ansible_distribution == "RedHat"
+
+
+- name: Install LAMP packages RHEL
+  become: true
+  ansible.builtin.dnf:
+    name:
+      - php
+      - httpd
+      - mariadb-server
+    update_cache: true
+  notify: 
+    - start httpd
+    - start mariadb
+  tags:
+    - packages

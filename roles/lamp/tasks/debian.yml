@@ -1,0 +1,28 @@
+---
+# Debian tasks file for lamp
+
+- name: Installing PHP pre packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - apt-transport-https 
+      - lsb-release 
+      - ca-certificates 
+      - wget 
+  tags:
+    - packages
+
+- name: Download php repo
+  become: true
+  get_url:
+    url: https://packages.sury.org/php/apt.gpg
+    dest: /etc/apt/trusted.gpg.d/php.gpg
+
+- name: Add repo to VM list
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb https://packages.sury.org/php/ {{ ansible_lsb.codename }} main | tee /etc/apt/sources.list.d/php.list"
+    state: present
+
+
+

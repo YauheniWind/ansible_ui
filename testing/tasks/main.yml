@@ -1,0 +1,9 @@
+---
+# tasks file for testing
+- name: Testing shell command
+  shell: ls -la
+  register: out
+
+- name: Print output of prev task
+  debug:
+    var: out

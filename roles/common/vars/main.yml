@@ -1,0 +1,7 @@
+---
+# vars file for common
+
+servers:
+  - name: galaxy
+  - name: vulcan
+  - name: ameros

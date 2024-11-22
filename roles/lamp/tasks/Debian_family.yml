@@ -1,0 +1,30 @@
+
+- name: Include Ubuntu tasks
+  include_tasks:
+        file: ubuntu.yml
+  when: ansible_lsb.id == "Ubuntu"
+
+- name: Include Debian tasks
+  include_tasks:
+        file: debian.yml
+  when: ansible_lsb.id == "Debian"
+
+- name: Install LAMP packages
+  become: true
+  ansible.builtin.apt:
+    name: 
+      - php8.4
+      - apache2
+      - php8.4-mysql
+      - php8.4-mbstring
+      - mariadb-server
+      - mariadb-client
+    update_cache: yes
+    state: present
+  notify: 
+    - start apache
+    - start mariadb
+  tags:
+    - packages
+  
+

@@ -1,0 +1,17 @@
+---
+
+- name: Testing playbook
+  hosts:
+    - ubuntu
+  become: yes
+
+  tasks:
+    - name: Install cmatrix
+      become: yes
+      ansible.builtin.apt:
+        name: cmatrix
+        state: present
+        update_cache: yes
+
+    - name: Testing shell
+      shell: echo Test
